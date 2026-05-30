@@ -40,3 +40,6 @@ echo "========================================="
 
 echo "Searching for sqlite databases..."
 find /app -name "*.sqlite3" -o -name "*.db" 2>/dev/null
+
+echo "Starting original Tududi entrypoint..."
+exec /app/scripts/docker-entrypoint.sh
