@@ -32,4 +32,8 @@ echo "   Starting Tududi on port 3002"
 echo "========================================="
 
 cd /app
-exec bundle exec ruby app.rb -o 0.0.0.0 -p 3002
+echo "PATH=$PATH"
+which bundle || true
+which ruby || true
+find / -name bundle 2>/dev/null | head
+sleep 300
