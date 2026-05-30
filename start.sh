@@ -22,7 +22,7 @@ echo "*/30 * * * * root rclone copy /app/backend/db/tududi.db \
   > /etc/cron.d/tududi-backup
 
 chmod 644 /etc/cron.d/tududi-backup
-service cron start
+service crond start
 echo "Backup cron started"
 
 echo "Starting Tududi..."
