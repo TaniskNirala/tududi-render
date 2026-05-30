@@ -19,6 +19,13 @@ rclone copy gdrive:app-backups/production.sqlite3 /tududi_db/ \
   && echo "Database restored from Google Drive" \
   || echo "No existing backup - starting fresh"
 
+mkdir -p /app/backend/db
+
+if [ -f /tududi_db/production.sqlite3 ]; then
+    cp /tududi_db/production.sqlite3 /app/backend/db/production.sqlite3
+    echo "Database copied into Tududi data directory"
+fi
+
 # Set up automatic backup every 30 minutes
 echo "*/30 * * * * rclone copy /tududi_db/production.sqlite3 gdrive:app-backups/ --config /root/.config/rclone/rclone.conf" \
   > /etc/crontabs/root
@@ -31,5 +38,5 @@ echo "========================================="
 echo "   Starting Tududi on port 3002"
 echo "========================================="
 
-echo "Starting original Tududi entrypoint..."
-exec /app/scripts/docker-entrypoint.sh
+echo "Searching for sqlite databases..."
+find /app -name "*.sqlite3" -o -name "*.db" 2>/dev/null
