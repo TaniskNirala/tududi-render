@@ -31,23 +31,5 @@ echo "========================================="
 echo "   Starting Tududi on port 3002"
 echo "========================================="
 
-cd /app
-echo "PATH=$PATH"
-which bundle || true
-which ruby || true
-find / -name bundle 2>/dev/null | head
-# sleep 300
-
-echo "=== PROCESS INFO ==="
-find / -maxdepth 3 -type f 2>/dev/null | grep -Ei "tududi|app|server|start"
-
-echo "=== ROOT ==="
-ls -lah /
-
-echo "=== APP ==="
-ls -lah /app 2>/dev/null || true
-
-echo "=== BIN ==="
-ls -lah /usr/local/bin
-
-sleep 600
+echo "Starting original Tududi entrypoint..."
+exec /app/scripts/docker-entrypoint.sh
