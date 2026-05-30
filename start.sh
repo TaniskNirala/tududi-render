@@ -1,31 +1,35 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
-echo "=== Tududi Starting ==="
+echo "========================================="
+echo "   Tududi Starting"
+echo "========================================="
 
-# Create rclone config directory
+# Create rclone config from environment variable
 mkdir -p /root/.config/rclone
-
-# Write rclone config from environment variable
 echo "$RCLONE_CONF" > /root/.config/rclone/rclone.conf
+echo "rclone configured"
 
+# Make sure the database folder exists
+mkdir -p /tududi_db
+
+# Download database from Google Drive
 echo "Restoring Tududi database from Google Drive..."
-mkdir -p /app/backend/db
-rclone copy gdrive:app-backups/tududi.db /app/backend/db/ 2>/dev/null \
-  && echo "Database restored successfully" \
-  || echo "No existing backup — starting fresh"
+rclone copy gdrive:app-backups/production.sqlite3 /tududi_db/ \
+  && echo "Database restored from Google Drive" \
+  || echo "No existing backup - starting fresh"
 
-# Back up every 30 minutes
-echo "*/30 * * * * root rclone copy /app/backend/db/tududi.db \
-  gdrive:app-backups/ --config /root/.config/rclone/rclone.conf \
-  >> /var/log/backup.log 2>&1" \
-  > /etc/cron.d/tududi-backup
+# Set up automatic backup every 30 minutes
+echo "*/30 * * * * rclone copy /tududi_db/production.sqlite3 gdrive:app-backups/ --config /root/.config/rclone/rclone.conf" \
+  > /etc/crontabs/root
 
-chmod 644 /etc/cron.d/tududi-backup
-service crond start
-echo "Backup cron started"
+# Start cron in background (Alpine uses crond)
+crond -b
+echo "Auto-backup every 30 minutes started"
 
-echo "Starting Tududi..."
-exec /usr/local/bin/tududi-start 2>/dev/null \
-  || exec bundle exec ruby app.rb -o 0.0.0.0 -p 3002 2>/dev/null \
-  || exec sh /docker-entrypoint.sh
+echo "========================================="
+echo "   Starting Tududi on port 3002"
+echo "========================================="
+
+cd /app
+exec bundle exec ruby app.rb -o 0.0.0.0 -p 3002
